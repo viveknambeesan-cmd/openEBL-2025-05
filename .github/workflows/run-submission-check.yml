@@ -1,4 +1,4 @@
-name: Run Submission Checks
+name: Submission Checks
 
 on:
   workflow_dispatch:
