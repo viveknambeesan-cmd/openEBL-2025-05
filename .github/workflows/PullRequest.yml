@@ -61,6 +61,8 @@ jobs:
               Thank you for uploading your design.
 
               If you have not already checked it, please run the SiEPIC Functional Verification in KLayout, using the menu SiEPIC-Verification-Functional Layout Check (V).  
+
+              We are using GitHub Actions to perform several automated checks. Please ensure that there are no failing checks. Each time you update the files in your fork, this pull request will trigger the automated verification. Check back in a few minutes once they are complete. Click on any failing check indiciated with a red "X" to see the detailed errors.
                     
               You may continue making updates to your design, or even contributing additonal designs (using a separate file name), until the tape-out deadline.
               `
