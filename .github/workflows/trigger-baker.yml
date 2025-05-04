@@ -42,6 +42,9 @@ jobs:
 
           chmod 600 ~/.ssh/config
 
+      - run: ssh-keygen -l -f ~/.ssh/id_ed25519
+
+
       - name: Detect Python files in simulations/<username>/
         id: check_files
         run: |
