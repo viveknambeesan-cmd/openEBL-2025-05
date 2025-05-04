@@ -1,30 +1,42 @@
 name: Run Simulation
 
 on:
-  repository_dispatch:
-    types: [run-secure-simulation]
+  workflow_run:
+    workflows: ["Detect Simulation File"]
+    types:
+      - completed
 
 jobs:
   secure-sim:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
-      - name: Extract inputs
-        run: |
-          echo "Running secure job for PR #${{ github.event.client_payload.pr_number }}"
-          echo "Submitted by: ${{ github.event.client_payload.username }}"
-          echo "From branch:  ${{ github.event.client_payload.branch }}"
+      - name: Download trigger artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: trigger
 
-      - name: Setup SSH key
+      - name: Parse trigger payload
+        id: payload
+        run: |
+          cat trigger.json
+          echo "pr_number=$(jq -r .pr_number trigger.json)" >> $GITHUB_OUTPUT
+          echo "username=$(jq -r .username trigger.json)" >> $GITHUB_OUTPUT
+          echo "branch=$(jq -r .branch trigger.json)" >> $GITHUB_OUTPUT
+
+      - name: Setup SSH keys
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "Invalid SSH key"
-
           echo "🔍 Checking file size:"
           wc -c ~/.ssh/id_ed25519
+          ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "Invalid SSH key"
 
-          echo "🔍 SSH key fingerprint:"
-          ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "❌ Invalid key format"
+      - name: Run secure simulation
+        run: |
+          echo "Simulating for user: ${{ steps.payload.outputs.username }}"
+          ssh baker "mkdir -p ~/simulations/${{ steps.payload.outputs.username }}"
+          scp simulations/${{ steps.payload.outputs.username }}/*.py baker:~/simulations/${{ steps.payload.outputs.username }}/
 
