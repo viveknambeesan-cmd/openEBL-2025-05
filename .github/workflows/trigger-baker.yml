@@ -14,15 +14,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Required for git diff to compare branches
 
-      - name: Setup SSH keys and config
+      - name: Set up SSH key and config
         run: |
           mkdir -p ~/.ssh
+
+          # Decode the base64-encoded SSH key stored in GitHub Secrets
           echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 -d > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          echo "
+          # Write SSH config with ProxyJump
+          cat <<EOF > ~/.ssh/config
           Host turing
             HostName turing.phas.ubc.ca
             User lukasc
@@ -35,12 +38,9 @@ jobs:
             ProxyJump turing
             StrictHostKeyChecking no
             UserKnownHostsFile=/dev/null
-          " > ~/.ssh/config
+          EOF
 
           chmod 600 ~/.ssh/config
-
-      - run: ssh-keygen -l -f ~/.ssh/id_ed25519
-
 
       - name: Detect Python files in simulations/<username>/
         id: check_files
@@ -52,24 +52,22 @@ jobs:
           FILES=$(git diff --name-only origin/$BASE_BRANCH...HEAD | grep "^simulations/$USERNAME/.*\.py$" || true)
 
           if [ -z "$FILES" ]; then
-            echo "No matching files found"
+            echo "No matching .py files found in simulations/$USERNAME/"
             echo "found=false" >> $GITHUB_OUTPUT
           else
             echo "$FILES" > files_to_copy.txt
             echo "found=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Copy files to Baker
+      - name: Copy .py files to Baker
         if: steps.check_files.outputs.found == 'true'
         run: |
           USERNAME="${{ github.actor }}"
-
-          # Create remote directory
           ssh baker "mkdir -p ~/simulations/$USERNAME"
 
-          # Copy files via ProxyJump
           while read file; do
-            echo "Copying $file..."
+            echo "Copying $file to baker:~/simulations/$USERNAME/"
             scp "$file" baker:~/simulations/$USERNAME/
           done < files_to_copy.txt
+
 
