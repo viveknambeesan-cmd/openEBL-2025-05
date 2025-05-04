@@ -1,0 +1,14 @@
+name: Detect Simulation Upload (Fork PR)
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'simulations/**.py'
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm simulation file exists
+        run: echo "Detected simulation Python file in forked PR."

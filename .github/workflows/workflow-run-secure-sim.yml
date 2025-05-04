@@ -1,0 +1,39 @@
+name: Secure Simulation via workflow_run
+
+on:
+  workflow_run:
+    workflows: ["Detect Simulation Upload (Fork PR)"]
+    types:
+      - completed
+
+jobs:
+  secure-sim:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Print PR Info
+        run: |
+          echo "Running secure sim for PR: ${{ github.event.workflow_run.pull_requests[0].number }}"
+          echo "Triggered by forked PR detection."
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "Invalid SSH key"
+
+      - name: Run Secure Simulation
+        run: |
+          echo "This is where you'd SSH to baker and run the simulation code"
+          # Example:
+          # ssh baker "python3 ~/simulations/${GITHUB_ACTOR}/simulate.py"
+
+      - name: Post results (optional)
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.PAT }}
+          issue-number: ${{ github.event.workflow_run.pull_requests[0].number }}
+          body: |
+            ✅ Secure simulation job completed for PR #${{ github.event.workflow_run.pull_requests[0].number }}.
