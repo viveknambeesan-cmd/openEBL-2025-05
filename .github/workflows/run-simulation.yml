@@ -1,41 +1,36 @@
-name: Run Simulation
+name: Secure Simulation Job
 
 on:
-  workflow_run:
-    workflows: ["Detect Simulation File"]
-    types:
-      - completed
+  push:
+    branches:
+      - sim-trigger
 
 jobs:
   secure-sim:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
-      - name: Download trigger artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: trigger
-          path: ./artifact
+      - name: Checkout trigger
+        uses: actions/checkout@v4
 
-      - name: Parse trigger payload
+      - name: Read trigger file
         id: payload
         run: |
-          cat ./artifact/trigger.json
-          echo "pr_number=$(jq -r .pr_number ./artifact/trigger.json)" >> $GITHUB_OUTPUT
-          echo "username=$(jq -r .username ./artifact/trigger.json)" >> $GITHUB_OUTPUT
-          echo "branch=$(jq -r .branch ./artifact/trigger.json)" >> $GITHUB_OUTPUT
+          cat trigger.json
+          echo "pr_number=$(jq -r .pr_number trigger.json)" >> $GITHUB_OUTPUT
+          echo "username=$(jq -r .username trigger.json)" >> $GITHUB_OUTPUT
+          echo "branch=$(jq -r .branch trigger.json)" >> $GITHUB_OUTPUT
 
-      - name: Setup SSH keys
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "Invalid SSH key"
-          echo "🔍 Checking file size:"
-          wc -c ~/.ssh/id_ed25519
 
-      - name: Run secure simulation
+      - name: Secure Job (Sim)
         run: |
-          echo "Running for PR #${{ steps.payload.outputs.pr_number }} by ${{ steps.payload.outputs.username }}"
+          echo "Running for PR ${{ steps.payload.outputs.pr_number }} by ${{ steps.payload.outputs.username }}"
+          # scp/ssh logic here
+
 
