@@ -12,33 +12,37 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
+      - name: Checkout triggering commit
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.event.workflow_run.head_branch }}
+          token: ${{ secrets.PAT }}
+
       - name: Download trigger artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: trigger
-          run-id: ${{ github.event.workflow_run.id }}
-          repository: ${{ github.repository }}
+          path: ./artifact
 
       - name: Parse trigger payload
         id: payload
         run: |
-          cat trigger.json
-          echo "pr_number=$(jq -r .pr_number trigger.json)" >> $GITHUB_OUTPUT
-          echo "username=$(jq -r .username trigger.json)" >> $GITHUB_OUTPUT
-          echo "branch=$(jq -r .branch trigger.json)" >> $GITHUB_OUTPUT
+          cat ./artifact/trigger.json
+          echo "pr_number=$(jq -r .pr_number ./artifact/trigger.json)" >> $GITHUB_OUTPUT
+          echo "username=$(jq -r .username ./artifact/trigger.json)" >> $GITHUB_OUTPUT
+          echo "branch=$(jq -r .branch ./artifact/trigger.json)" >> $GITHUB_OUTPUT
 
       - name: Setup SSH keys
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "Invalid SSH key"
           echo "🔍 Checking file size:"
           wc -c ~/.ssh/id_ed25519
-          ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "Invalid SSH key"
 
       - name: Run secure simulation
         run: |
-          echo "Simulating for user: ${{ steps.payload.outputs.username }}"
-          ssh baker "mkdir -p ~/simulations/${{ steps.payload.outputs.username }}"
-          scp simulations/${{ steps.payload.outputs.username }}/*.py baker:~/simulations/${{ steps.payload.outputs.username }}/
+          echo "Running for PR #${{ steps.payload.outputs.pr_number }} by ${{ steps.payload.outputs.username }}"
 
