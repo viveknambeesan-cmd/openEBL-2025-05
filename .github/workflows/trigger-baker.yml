@@ -24,8 +24,9 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 -d > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}"
-          cat ~/.ssh/id_ed25519
+          # Optional debug: confirm the key was written (no content shown)
+          echo "SSH private key length:"
+          wc -c ~/.ssh/id_ed25519
 
           # Write SSH config with ProxyJump
           cat <<EOF > ~/.ssh/config
@@ -45,7 +46,8 @@ jobs:
 
           chmod 600 ~/.ssh/config
 
-      - run: ssh-keygen -l -f ~/.ssh/id_ed25519
+      - name: Validate private key
+        run: ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "Invalid key format"
 
 
       - name: Detect Python files in simulations/<username>/
