@@ -16,6 +16,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: trigger
+          run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }}
 
       - name: Parse trigger payload
         id: payload
