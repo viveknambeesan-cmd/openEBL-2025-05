@@ -20,8 +20,7 @@ jobs:
         run: |
           mkdir -p ~/.ssh
 
-          # Decode the base64-encoded SSH key stored in GitHub Secrets
-          echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 -d > ~/.ssh/id_ed25519
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
           # Optional debug: confirm the key was written (no content shown)
