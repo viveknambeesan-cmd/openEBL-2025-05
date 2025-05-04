@@ -1,4 +1,4 @@
-name: Functional Verification "V"
+name: Run Layout Verification
 
 on:
   workflow_dispatch:
