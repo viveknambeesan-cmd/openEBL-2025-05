@@ -20,7 +20,7 @@ jobs:
 
       - name: Fetch base branch
         run: |
-          git fetch origin main --depth=50
+          git fetch origin main --no-tags --prune --unshallow
 
       - name: Setup GitHub CLI
         run: |
