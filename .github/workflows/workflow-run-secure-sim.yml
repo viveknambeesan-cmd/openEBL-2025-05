@@ -57,7 +57,6 @@ jobs:
             echo "found=true" >> $GITHUB_OUTPUT
           fi
 
-
       - name: Setup SSH
         if: steps.check_files.outputs.found == 'true'
         run: |
@@ -84,14 +83,26 @@ jobs:
 
           chmod 600 ~/.ssh/config
 
-
-      - name: Run Secure Simulation
+      - name: Copy .py files to Baker
         if: steps.check_files.outputs.found == 'true'
         run: |
+
           echo "Simulating for PR #${{ steps.getpr.outputs.pr_number }}..."
-          echo "Running simulation for:"
+          echo "simulation files:"
           cat files_to_copy.txt
-          # SSH to baker and execute user's code here
+
+          USERNAME="${{ steps.getpr.outputs.username }}"
+          ssh baker "mkdir -p ~/simulations/$USERNAME"
+
+          while IFS= read -r file; do
+            echo "Copying $file to baker:~/simulations/$USERNAME/"
+            scp "$file" baker:~/simulations/$USERNAME/
+            if [ $? -ne 0 ]; then
+              echo "❌ Failed to copy $file"
+              exit 1
+            fi
+          done < files_to_copy.txt
+
 
       - name: Post result comment
         if: steps.check_files.outputs.found == 'true'
@@ -101,4 +112,4 @@ jobs:
           repository: ${{ github.repository }}
           issue-number: ${{ steps.getpr.outputs.pr_number }}
           body: |
-            ✅ Secure simulation completed for PR #${{ steps.getpr.outputs.pr_number }}.
+            ✅ Uploaded files for simulation, for PR #${{ steps.getpr.outputs.pr_number }}.
