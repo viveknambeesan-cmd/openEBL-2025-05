@@ -24,6 +24,9 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 -d > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
+          echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}"
+          cat ~/.ssh/id_ed25519
+
           # Write SSH config with ProxyJump
           cat <<EOF > ~/.ssh/config
           Host turing
