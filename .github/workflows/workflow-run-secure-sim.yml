@@ -20,7 +20,6 @@ jobs:
 
       - name: Fetch base branch
         run: |
-          git remote add origin https://github.com/${{ github.repository }}.git
           git fetch origin main --depth=1
 
       - name: Detect simulation files
