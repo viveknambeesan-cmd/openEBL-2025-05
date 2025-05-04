@@ -27,6 +27,10 @@ jobs:
           BASE="${{ github.event.pull_request.base.sha }}"
           HEAD="${{ github.event.pull_request.head.sha }}"
 
+          echo "Fetching base SHA $BASE..."
+          git fetch origin $BASE --depth=1
+
+          echo "Diffing $BASE...$HEAD"
           FILES=$(git diff --name-only $BASE $HEAD -- 'simulations/**/*.py' || true)
           echo "$FILES" | tee all_py_files.txt
 
