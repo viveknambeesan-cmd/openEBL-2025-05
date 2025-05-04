@@ -18,6 +18,27 @@ jobs:
           repository: ${{ github.repository }}
           ref: ${{ github.event.workflow_run.head_sha }}
 
+      - name: Fetch base branch
+        run: |
+          git remote add origin https://github.com/${{ github.repository }}.git
+          git fetch origin main --depth=1
+
+      - name: Detect simulation files
+        id: check_files
+        run: |
+          USERNAME="${{ github.event.workflow_run.head_commit.author.name }}"
+          echo "Assumed GitHub username: $USERNAME"
+
+          FILES=$(git diff --name-only origin/main...HEAD | grep "^simulations/$USERNAME/.*\.py$" || true)
+
+          if [ -z "$FILES" ]; then
+            echo "No .py files in simulations/$USERNAME/"
+            echo "found=false" >> $GITHUB_OUTPUT
+          else
+            echo "$FILES" > files_to_copy.txt
+            echo "found=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Setup GitHub CLI
         run: |
           sudo apt update
@@ -35,18 +56,42 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT }}
 
       - name: Setup SSH
+        if: steps.check_files.outputs.found == 'true'
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "Invalid SSH key"
 
+          # Write SSH config with ProxyJump
+          cat <<EOF > ~/.ssh/config
+          Host turing
+            HostName turing.phas.ubc.ca
+            User lukasc
+            Port 7743
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+
+          Host baker
+            User lukasc
+            ProxyJump turing
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+          EOF
+
+          chmod 600 ~/.ssh/config
+
+
       - name: Run Secure Simulation
+        if: steps.check_files.outputs.found == 'true'
         run: |
           echo "Simulating for PR #${{ steps.getpr.outputs.pr_number }}..."
+          echo "Running simulation for:"
+          cat files_to_copy.txt
           # SSH to baker and execute user's code here
 
       - name: Post result comment
+        if: steps.check_files.outputs.found == 'true'
         uses: peter-evans/create-or-update-comment@v3
         with:
           token: ${{ secrets.PAT }}
