@@ -1,4 +1,4 @@
-name: Run Simulation on Baker
+name: Run Simulation on PR
 
 on:
   pull_request:
@@ -9,8 +9,9 @@ on:
 jobs:
   run-simulation:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Setup SSH
@@ -21,16 +22,29 @@ jobs:
           ssh-keyscan -H turing >> ~/.ssh/known_hosts
           ssh-keyscan -H baker >> ~/.ssh/known_hosts
 
-      - name: Copy Python files and script to Baker
+      - name: Find Python files in user folder
+        id: detect
         run: |
           USERNAME="${{ github.actor }}"
-          PR_NUMBER="${{ github.event.pull_request.number }}"
+          FILES=$(find simulations/$USERNAME -maxdepth 1 -name "*.py" 2>/dev/null || true)
+          if [ -z "$FILES" ]; then
+            echo "No simulation files found for $USERNAME"
+            echo "found=false" >> $GITHUB_OUTPUT
+          else
+            echo "Found files: $FILES"
+            echo "found=true" >> $GITHUB_OUTPUT
+            echo "$FILES" > files_to_copy.txt
+          fi
+
+      - name: Copy files to Baker
+        if: steps.detect.outputs.found == 'true'
+        run: |
+          USERNAME="${{ github.actor }}"
 
           ssh -o ProxyJump=turing baker "mkdir -p ~/simulations/$USERNAME"
-          
-          scp -o ProxyJump=turing simulations/$USERNAME/*.py baker:~/simulations/$USERNAME/
-          scp -o ProxyJump=turing .github/scripts/run_and_report.sh baker:~/simulations/$USERNAME/
 
-          ssh -o ProxyJump=turing baker "bash ~/simulations/$USERNAME/run_and_report.sh '$USERNAME' '$PR_NUMBER' '${{ github.repository }}' '${{ secrets.GITHUB_TOKEN }}'"
-
+          while read file; do
+            echo "Copying $file"
+            scp -o ProxyJump=turing "$file" baker:~/simulations/$USERNAME/
+          done < files_to_copy.txt
 
