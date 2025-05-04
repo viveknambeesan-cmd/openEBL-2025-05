@@ -27,7 +27,7 @@ jobs:
           echo "SSH private key length:"
           wc -c ~/.ssh/id_ed25519
 
-          echo "${{ secrets.PAT }}" > > ~/.ssh/id_test
+          echo "${{ secrets.PAT }}" > ~/.ssh/id_test
           wc -c ~/.ssh/id_test
 
           # Write SSH config with ProxyJump
