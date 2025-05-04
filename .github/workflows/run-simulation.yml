@@ -1,0 +1,30 @@
+name: Run Simulation
+
+on:
+  repository_dispatch:
+    types: [run-secure-simulation]
+
+jobs:
+  secure-sim:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract inputs
+        run: |
+          echo "Running secure job for PR #${{ github.event.client_payload.pr_number }}"
+          echo "Submitted by: ${{ github.event.client_payload.username }}"
+          echo "From branch:  ${{ github.event.client_payload.branch }}"
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "Invalid SSH key"
+
+          echo "🔍 Checking file size:"
+          wc -c ~/.ssh/id_ed25519
+
+          echo "🔍 SSH key fingerprint:"
+          ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "❌ Invalid key format"
+

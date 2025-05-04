@@ -1,0 +1,29 @@
+name: Detect Simulation File
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'simulations/**.py'
+
+jobs:
+  simulate-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if simulation file exists
+        run: |
+          echo "Detected simulation file in forked PR"
+
+      - name: Trigger secure workflow
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PAT }}
+          repository: SiEPIC/openEBL-2025-05
+          event-type: run-secure-simulation
+          client-payload: >-
+            {
+              "pr_number": "${{ github.event.pull_request.number }}",
+              "username": "${{ github.actor }}",
+              "branch": "${{ github.head_ref }}"
+            }
+
