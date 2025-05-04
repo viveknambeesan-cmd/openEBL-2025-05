@@ -1,4 +1,4 @@
-name: Run Simulation on PR
+name: Run Simulation on Baker
 
 on:
   pull_request:
@@ -14,37 +14,57 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup SSH
+      - name: Setup SSH keys and config
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H turing >> ~/.ssh/known_hosts
-          ssh-keyscan -H baker >> ~/.ssh/known_hosts
 
-      - name: Find Python files in user folder
-        id: detect
+          echo "
+          Host turing
+            HostName turing.phas.ubc.ca
+            User lukasc
+            Port 7743
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+
+          Host baker
+            User lukasc
+            ProxyJump turing
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+          " > ~/.ssh/config
+
+          chmod 600 ~/.ssh/config
+
+      - name: Detect Python files in simulations/<username>/
+        id: check_files
         run: |
           USERNAME="${{ github.actor }}"
-          FILES=$(find simulations/$USERNAME -maxdepth 1 -name "*.py" 2>/dev/null || true)
+          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+
+          # List only added/changed files in simulations/<username>/
+          FILES=$(git diff --name-only origin/$BASE_BRANCH...HEAD | grep "^simulations/$USERNAME/.*\.py$" || true)
+
           if [ -z "$FILES" ]; then
-            echo "No simulation files found for $USERNAME"
+            echo "No matching files found"
             echo "found=false" >> $GITHUB_OUTPUT
           else
-            echo "Found files: $FILES"
-            echo "found=true" >> $GITHUB_OUTPUT
             echo "$FILES" > files_to_copy.txt
+            echo "found=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Copy files to Baker
-        if: steps.detect.outputs.found == 'true'
+        if: steps.check_files.outputs.found == 'true'
         run: |
           USERNAME="${{ github.actor }}"
 
-          ssh -o ProxyJump=turing baker "mkdir -p ~/simulations/$USERNAME"
+          # Create remote directory
+          ssh baker "mkdir -p ~/simulations/$USERNAME"
 
+          # Copy files via ProxyJump
           while read file; do
-            echo "Copying $file"
-            scp -o ProxyJump=turing "$file" baker:~/simulations/$USERNAME/
+            echo "Copying $file..."
+            scp "$file" baker:~/simulations/$USERNAME/
           done < files_to_copy.txt
 
