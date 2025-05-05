@@ -30,8 +30,8 @@ jobs:
           echo "Fetching base SHA $BASE..."
           git fetch origin $BASE --depth=1
 
-          echo "Diffing $BASE...$HEAD"
-          FILES=$(git diff --name-only $BASE $HEAD -- 'simulations/**/*.py' || true)
+          echo "Diffing $BASE...$HEAD: looking for files submitted by the fork PR"
+          FILES=$(git diff --diff-filter=AM --name-only $BASE $HEAD -- 'simulations/**/*.py' || true)
           echo "$FILES" | tee all_py_files.txt
 
           MATCHED_FILES=()
