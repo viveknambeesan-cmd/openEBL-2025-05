@@ -53,6 +53,7 @@ jobs:
             echo "No .py files in simulations/$USERNAME/"
             echo "found=false" >> $GITHUB_OUTPUT
           else
+            echo "$FILES"
             echo "$FILES" > files_to_copy.txt
             echo "found=true" >> $GITHUB_OUTPUT
           fi
@@ -83,6 +84,9 @@ jobs:
           done < files_to_copy.txt
 
           git commit -m "Add PR header to simulation scripts" || echo "No changes"
+          
+          curl -H "Authorization: token YOUR_PAT" https://api.github.com/user
+          
           git push origin HEAD:refs/heads/${{ github.event.workflow_run.head_branch }}
 
         env:
