@@ -83,7 +83,8 @@ jobs:
           done < files_to_copy.txt
 
           git commit -m "Add PR header to simulation scripts" || echo "No changes"
-          git push origin HEAD:${{ github.event.workflow_run.head_branch }}
+          git push origin HEAD:refs/heads/${{ github.event.workflow_run.head_branch }}
+
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
