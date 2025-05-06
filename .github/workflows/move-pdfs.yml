@@ -9,8 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout PR branch
+      - name: Checkout PR branch with full history
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Check changed files are only PDFs
         id: check
