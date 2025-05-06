@@ -202,15 +202,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
+
       - name: Append PNG links to comment
         if: steps.check_files.outputs.found == 'true'
         run: |
           echo "📸 Simulation result image(s):" >> comment.txt
-          for img in submissions/*.png; do
+          BRANCH_NAME="${{ github.event.workflow_run.head_branch }}"
+          FORK_REPO="${{ steps.getpr.outputs.fork_repo }}"
+          for img in output/*.png; do
             [ -f "$img" ] || continue
             FILENAME=$(basename "$img")
-            echo "![${FILENAME}](https://github.com/${{ steps.getpr.outputs.username }}/openEBL-2025-05/blob/${{ github.event.workflow_run.head_branch }}/submissions/${FILENAME}?raw=true)" >> comment.txt
+            echo "![${FILENAME}](https://github.com/${FORK_REPO}/blob/${BRANCH_NAME}/submissions/${FILENAME}?raw=true)" >> comment.txt
+          done
 
+          
       - name: Post simulation results as PR comment
         if: steps.check_files.outputs.found == 'true'
         uses: peter-evans/create-or-update-comment@v3
