@@ -1,0 +1,33 @@
+name: Auto-move submitted PDFs
+
+on:
+  push:
+    paths:
+      - '**/*.pdf'
+
+jobs:
+  move-pdfs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Move PDF files to reports/
+        run: |
+          mkdir -p reports
+          shopt -s globstar nullglob
+          for f in **/*.pdf; do
+            [[ "$f" == reports/* ]] && continue
+            mv "$f" "reports/$(basename "$f")"
+          done
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add reports/*.pdf
+          git diff --cached --quiet || git commit -m "Auto-move PDFs to reports/"
+          git push
