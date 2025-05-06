@@ -86,12 +86,14 @@ try:
 
    # Initialize an empty bounding box
    combined_bbox = pya.Region()
+   
+   # print(top_cell.layout().layer_indexes())
 
    # Loop through layers and merge bounding boxes
    for layer_num, layer_dt in layers_of_interest:
       layer_index = layout.find_layer(pya.LayerInfo(layer_num, layer_dt))
       # print(f'layer: {layer_num} / {layer_dt} - {layer_index}')
-      if not layer_index:
+      if layer_index == None:
          continue  # layer not found, skip
       bbox = top_cell.bbox_per_layer(layer_index)
       # print(bbox)
