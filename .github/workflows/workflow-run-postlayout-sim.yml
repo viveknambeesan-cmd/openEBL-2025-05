@@ -93,7 +93,8 @@ jobs:
         if: steps.check_files.outputs.found == 'true'
         run: |
 
-          echo "Simulating for PR 
+          PR_NUMBER="${{ steps.getpr.outputs.pr_number }}"
+          echo "Simulating for PR $PR_NUMBER"
           echo "simulation files:"
           cat files_to_copy.txt
 
