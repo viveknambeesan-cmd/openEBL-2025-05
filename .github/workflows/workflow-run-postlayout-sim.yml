@@ -36,17 +36,21 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y gh
 
-      - name: Get PR number from branch
+
+      - name: Get PR number, username, and fork repo
         id: getpr
         run: |
           echo "Finding PR and username for branch: ${{ github.event.workflow_run.head_branch }}"
-          PR_JSON=$(gh pr list --state open --json number,author -L 1 --search "head:${{ github.event.workflow_run.head_branch }}")
+          PR_JSON=$(gh pr list --state open --json number,author,headRepository -L 1 --search "head:${{ github.event.workflow_run.head_branch }}")
           PR_NUMBER=$(echo "$PR_JSON" | jq -r '.[0].number')
           USERNAME=$(echo "$PR_JSON" | jq -r '.[0].author.login')
+          FORK_REPO=$(echo "$PR_JSON" | jq -r '.[0].headRepository.fullName')
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
           echo "username=$USERNAME" >> $GITHUB_OUTPUT
+          echo "fork_repo=$FORK_REPO" >> $GITHUB_OUTPUT
           echo "Found username: $USERNAME"
           echo "Found PR #: $PR_NUMBER"
+          echo "Fork repo: $FORK_REPO"
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
@@ -169,8 +173,8 @@ jobs:
           USERNAME="${{ steps.getpr.outputs.username }}"
           BRANCH_NAME="${{ github.event.workflow_run.head_branch }}"
           echo "Resolving fork repository for PR #$PR_NUMBER..."
-          FORK_REPO=$(gh pr view "$PR_NUMBER" --json headRepository --jq '.headRepository.fullName')
-
+          
+          FORK_REPO=${{ steps.getpr.outputs.fork_repo }}
           echo "Committing PNGs to forked PR branch: $FORK_REPO $BRANCH_NAME"
 
           # Clone forked repo + checkout PR branch
