@@ -188,21 +188,25 @@ jobs:
           mkdir -p images/pr-${PR_NUMBER}
           cp output/*.png images/pr-${PR_NUMBER}/ || echo "No PNGs found"
 
+          # Clone repo to clean dir
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }} repo-sim-images
+          cd repo-sim-images
+
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git fetch origin
+          # Create branch or switch
+          git checkout origin/sim-images || git checkout --orphan sim-images
+          git reset --hard  # ensure clean
 
-          git ls-remote --exit-code origin sim-images && \
-            git checkout sim-images || \
-            git checkout --orphan sim-images
+          # Add just the images
+          mkdir -p images/pr-${PR_NUMBER}
+          cp -r ../images/pr-${PR_NUMBER} images/
 
-          git pull origin sim-images || true
-
-          git restore .  # unstage everything
-          git add images/pr-${PR_NUMBER}
+          git add -f images/pr-${PR_NUMBER}
           git commit -m "Add simulation images for PR #$PR_NUMBER" || echo "No changes to commit"
           git push origin sim-images
+    
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
