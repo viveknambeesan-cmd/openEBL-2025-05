@@ -26,10 +26,8 @@ jobs:
         run: |
           git fetch origin main --no-tags --prune --unshallow
 
-      - name: Setup GitHub CLI
-        run: |
-          sudo apt update
-          sudo apt install -y gh
+      - name: Install GitHub CLI
+        uses: cli/gh-action@v2
 
       - name: Get PR number from branch
         id: getpr
@@ -134,7 +132,7 @@ jobs:
             rsync -avz --ignore-existing --update baker:simulations/$USERNAME/ ./output/
 
             echo "Formatting comment..."
-            echo "This is an experimental feature: " > comment.txt
+            echo "This is an experimental feature. The goal is to run a circuit simulation on the design, and return the results for human verification." > comment.txt
             echo "✅ Simulation results for \`$FILE_BASENAME\`" > comment.txt
             echo "" >> comment.txt
 
@@ -162,6 +160,17 @@ jobs:
             done
           done
 
+
+      - name: Post simulation results as PR comment
+        if: steps.check_files.outputs.found == 'true'
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.PAT }}
+          repository: ${{ github.repository }}
+          issue-number: ${{ steps.getpr.outputs.pr_number }}
+          body-path: comment.txt
+          
+
       - name: Push result PNGs to `sim-images` branch
         if: steps.check_files.outputs.found == 'true'
         run: |
@@ -176,10 +185,13 @@ jobs:
           git config user.email "github-actions@github.com"
 
           git fetch origin
-          git checkout -B sim-images origin/sim-images || git checkout --orphan sim-images
+
+          git ls-remote --exit-code origin sim-images && \
+            git checkout sim-images || \
+            git checkout --orphan sim-images
+
           git pull origin sim-images || true
 
-          cp -r images/pr-${PR_NUMBER} images/
           git add images/pr-${PR_NUMBER}
           git commit -m "Add simulation images for PR #$PR_NUMBER" || echo "No changes to commit"
           git push origin sim-images
@@ -195,13 +207,3 @@ jobs:
             FILENAME=$(basename "$img")
             echo "![${FILENAME}](https://raw.githubusercontent.com/${{ github.repository }}/sim-images/images/pr-${{ steps.getpr.outputs.pr_number }}/${FILENAME})" >> comment.txt
           done
-
-      - name: Post simulation results as PR comment
-        if: steps.check_files.outputs.found == 'true'
-        uses: peter-evans/create-or-update-comment@v3
-        with:
-          token: ${{ secrets.PAT }}
-          repository: ${{ github.repository }}
-          issue-number: ${{ steps.getpr.outputs.pr_number }}
-          body-path: comment.txt
-          
