@@ -12,18 +12,18 @@ jobs:
       - name: Checkout PR branch
         uses: actions/checkout@v3
 
-      - name: Check changed files are only PDFs or GDS
+      - name: Check changed files are only PDFs
         id: check
         run: |
           changed=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
           echo "Changed files:"
           echo "$changed"
 
-          if echo "$changed" | grep -Pv '\.(pdf|gds)$'; then
-            echo "Non-PDF/GDS files detected. Skipping auto-merge."
+          if echo "$changed" | grep -Pv '\.pdf$'; then
+            echo "Non-PDF files detected. Skipping auto-merge."
             echo "result=fail" >> $GITHUB_OUTPUT
           else
-            echo "Only PDF or GDS files detected. Safe to merge."
+            echo "Only PDF files detected. Safe to merge."
             echo "result=pass" >> $GITHUB_OUTPUT
           fi
 
