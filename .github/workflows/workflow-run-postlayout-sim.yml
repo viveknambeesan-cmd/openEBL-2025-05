@@ -159,24 +159,8 @@ jobs:
               echo "" >> comment.txt
             fi
 
-            echo "Looking for PNGs to embed..."
-            for png in output/*.png; do
-              [ -e "$png" ] || continue
-              echo "![Result Image]($(basename "$png"))" >> comment.txt
-              echo "" >> comment.txt
-            done
           done
 
-
-      - name: Post simulation results as PR comment
-        if: steps.check_files.outputs.found == 'true'
-        uses: peter-evans/create-or-update-comment@v3
-        with:
-          token: ${{ secrets.PAT }}
-          repository: ${{ github.repository }}
-          issue-number: ${{ steps.getpr.outputs.pr_number }}
-          body-path: comment.txt
-          
 
       - name: Push result PNGs to `sim-images` branch
         if: steps.check_files.outputs.found == 'true'
@@ -219,3 +203,13 @@ jobs:
             FILENAME=$(basename "$img")
             echo "![${FILENAME}](https://raw.githubusercontent.com/${{ github.repository }}/sim-images/images/pr-${{ steps.getpr.outputs.pr_number }}/${FILENAME})" >> comment.txt
           done
+
+      - name: Post simulation results as PR comment
+        if: steps.check_files.outputs.found == 'true'
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.PAT }}
+          repository: ${{ github.repository }}
+          issue-number: ${{ steps.getpr.outputs.pr_number }}
+          body-path: comment.txt
+          
