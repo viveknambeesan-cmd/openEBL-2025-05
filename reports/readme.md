@@ -1,54 +1,43 @@
 # Design Review – Peer Assessment
 
-## Current Course Time
-All deadlines are in **Coordinated Universal Time (UTC)**. Refer to the course schedule for specific dates.
+**Note:** All times are in Coordinated Universal Time (UTC). The current course time is:
 
 ---
 
 ## Part 1 – Your Response: Design Submission
 
-### Submission Requirements
+**Deadline:** Please check the course schedule.
 
-1. **GDS Layout**
-   - Ensure your layout is uploaded.
-   - Confirm that the layout has been successfully merged and passes the automated checks.
+1. Ensure that you have completed and uploaded your **GDS layout**.
+2. Ensure that the layout has been **successfully merged** and passes all automated checks.
+3. Similarly, upload your **design document (.pdf)** and record the filename.
 
-2. **Design Document (.pdf)**
-   - Upload your design document as a PDF.
-   - Record the **filename**. This filename will be used for peer evaluation.
+### Step 1: Your Response
+Provide the filenames that your peers will use to evaluate your design:
 
-3. **Server Upload Instructions**
-   - Upload your PDF document here:  
-     [https://stratus.ece.ubc.ca/s/xfNn2xzjLFNQNya](https://stratus.ece.ubc.ca/s/xfNn2xzjLFNQNya)
-   - Confirm your upload was successful by checking:  
-     [https://stratus.ece.ubc.ca/s/5jnSwJ2JjET8gS9](https://stratus.ece.ubc.ca/s/5jnSwJ2JjET8gS9)
-
-### 📎 File Naming
-
-- **Design Document Filename**: `your_filename.pdf`
-- **GDS Layout (merged)**: Include your **fork name** so your peers can find the most up-to-date version of your layout.
+- **Design document:** The filename of your PDF document.  
+  _Note: This is not strictly required to participate in the design review._
+- **Layout:** The filename of your GDS layout, which has been merged into `EBeam.gds`.  
+- **IMPORTANT:** Include your **fork name** (found [here](https://github.com/SiEPIC/openEBL-2025-05/forks)) so peers can find the latest version of your layout.
 
 ---
 
 ## Part 2 & 3 – Design Review: Peer Assessment
 
-### Step 1: Your Response
-You should have completed this in Part 1.
+**Deadline:** Please check the course schedule.
 
-### Step 2: Learn to Assess Responses
-- Practice using this sample layout:  
-  `EBeam_ImaginaryStudentA.gds`  
-  > *Note: Created using an older version of KLayout/SiEPIC tools. Verification may not work.*
+Each participant will evaluate the layouts of several peers using the **Design Review Checklist** as a rubric.
 
-### Step 3: Assess Peers
+### Steps:
 
-- Assess several peer submissions using the **Design Review Checklist** rubric.
-- Peer designs will be available once they are submitted. If none appear, check again later.
-- Download the **merged EBeam.gds** and locate the peer’s layout using the provided fork name or filename.
-- If the layout is not visible in the merged file, also check individual forks. Some peers may not have submitted a pull request.
-
----
-
-## Troubleshooting & Support
-
-- If anything is unclear, use the **discussion forum** for assistance.
+1. **Step 1: Your Response** – Already completed (see above).
+2. **Step 2: Learn to Assess Responses**  
+   Practice by assessing a sample design:  
+   `EBeam_ImaginaryStudentA.gds`  
+   _Note: This file was created with an older version of KLayout/SiEPIC tools. The verification feature may not work._
+3. **Step 3: Assess Peers**  
+   - Evaluate the designs submitted by your peers.  
+   - Submissions will appear once peers have submitted. If none appear, check back later.
+   - Use the links your peers provided to access their designs.
+   - Download the **EBeam.gds** merged file and locate the peer’s layout. 
+     **IMPORTANT:** If a layout is missing from the merged layout, also check the forks. Your peer may not have submitted a pull request.
