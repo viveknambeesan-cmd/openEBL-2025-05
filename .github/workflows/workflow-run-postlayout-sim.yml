@@ -41,20 +41,17 @@ jobs:
         id: getpr
         run: |
           echo "Finding PR and username for branch: ${{ github.event.workflow_run.head_branch }}"
-          PR_JSON=$(gh pr list --state open --json number,author -L 1 --search "head:${{ github.event.workflow_run.head_branch }}")
+          PR_JSON=$(gh pr list --state open --json number,author,headRepositoryOwner,headRefName -L 1 --search "head:${{ github.event.workflow_run.head_branch }}")
           PR_NUMBER=$(echo "$PR_JSON" | jq -r '.[0].number')
           USERNAME=$(echo "$PR_JSON" | jq -r '.[0].author.login')
+          FORK_OWNER=$(echo "$PR_JSON" | jq -r '.[0].headRepositoryOwner.login')
+          FORK_REPO="$FORK_OWNER/${{ github.repository }}"
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
           echo "username=$USERNAME" >> $GITHUB_OUTPUT
+          echo "fork_repo=$FORK_REPO" >> $GITHUB_OUTPUT
           echo "Found username: $USERNAME"
           echo "Found PR #: $PR_NUMBER"
-          
-          echo "Fetching PR details for #$PR_NUMBER..."
-          PR_DETAILS=$(gh pr view "$PR_NUMBER" --json headRepository)
-          FORK_REPO=$(echo "$PR_DETAILS" | jq -r '.headRepository.fullName')
-          echo "fork_repo=$FORK_REPO" >> $GITHUB_OUTPUT
           echo "Fork repo: $FORK_REPO"
-
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
