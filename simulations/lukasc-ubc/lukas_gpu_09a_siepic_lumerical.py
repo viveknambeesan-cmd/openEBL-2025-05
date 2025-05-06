@@ -3,6 +3,10 @@
 Simulation of a halfring device using lumerical.
 @author: Mustafa Hammood
 """
+
+# Parameters
+expected_process_bias = -2  # reduction by 2 nm on each side
+
 import os
 import sys
 import subprocess
