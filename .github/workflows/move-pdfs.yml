@@ -21,7 +21,7 @@ jobs:
           echo "Changed files:"
           echo "$changed"
 
-          if echo "$changed" | grep -Pv '\.pdf$'; then
+          if echo "$changed" | grep -Pv '^reports/.*\.pdf$'; then
             echo "Non-PDF files detected. Skipping auto-merge."
             echo "result=fail" >> $GITHUB_OUTPUT
           else
