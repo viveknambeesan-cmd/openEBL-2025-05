@@ -103,7 +103,7 @@ jobs:
 
           while IFS= read -r file; do
             echo "Copying $file to baker:~/simulations/$USERNAME/"
-            scp "$file" baker:~/simulations/$USERNAME/
+            scp "submissions/$file" baker:~/simulations/$USERNAME/
             if [ $? -ne 0 ]; then
               echo "❌ Failed to copy $file"
               exit 1
