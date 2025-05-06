@@ -162,35 +162,31 @@ jobs:
           done
 
 
-      - name: Push result PNGs to `sim-images` branch
+      - name: Commit PNGs to PR branch submissions folder
         if: steps.check_files.outputs.found == 'true'
         run: |
           PR_NUMBER="${{ steps.getpr.outputs.pr_number }}"
           USERNAME="${{ steps.getpr.outputs.username }}"
+          BRANCH_NAME="${{ github.event.workflow_run.head_branch }}"
+          echo "Resolving fork repository for PR #$PR_NUMBER..."
+          FORK_REPO=$(gh pr view "$PR_NUMBER" --json headRepository --jq '.headRepository.fullName')
 
-          echo "Creating image folder for PR #$PR_NUMBER..."
-          mkdir -p images/pr-${PR_NUMBER}
-          cp output/*.png images/pr-${PR_NUMBER}/ || echo "No PNGs found"
+          echo "Committing PNGs to forked PR branch: $FORK_REPO $BRANCH_NAME"
 
-          # Clone repo to clean dir
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }} repo-sim-images
-          cd repo-sim-images
+          # Clone forked repo + checkout PR branch
+          git clone --depth=1 --branch "$BRANCH_NAME" "https://x-access-token:${{ secrets.PAT }}@github.com/$FORK_REPO.git" fork-pr
+          cd fork-pr
 
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          # Create branch or switch
-          git checkout origin/sim-images || git checkout --orphan sim-images
-          git reset --hard  # ensure clean
+          mkdir -p submissions
+          cp ../output/*.png submissions/ || echo "No PNGs found"
 
-          # Add just the images
-          mkdir -p images/pr-${PR_NUMBER}
-          cp -r ../images/pr-${PR_NUMBER} images/
+          git add submissions/*.png || true
+          git commit -m "Add simulation result PNGs for PR #$PR_NUMBER" || echo "No changes"
+          git push origin "$BRANCH_NAME"
 
-          git add -f images/pr-${PR_NUMBER}
-          git commit -m "Add simulation images for PR #$PR_NUMBER" || echo "No changes to commit"
-          git push origin sim-images
-    
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
@@ -198,11 +194,10 @@ jobs:
         if: steps.check_files.outputs.found == 'true'
         run: |
           echo "📸 Simulation result image(s):" >> comment.txt
-          for img in images/pr-${{ steps.getpr.outputs.pr_number }}/*.png; do
+          for img in submissions/*.png; do
             [ -f "$img" ] || continue
             FILENAME=$(basename "$img")
-            echo "![${FILENAME}](https://raw.githubusercontent.com/${{ github.repository }}/sim-images/images/pr-${{ steps.getpr.outputs.pr_number }}/${FILENAME})" >> comment.txt
-          done
+            echo "![${FILENAME}](https://github.com/${{ steps.getpr.outputs.username }}/openEBL-2025-05/blob/${{ github.event.workflow_run.head_branch }}/submissions/${FILENAME}?raw=true)" >> comment.txt
 
       - name: Post simulation results as PR comment
         if: steps.check_files.outputs.found == 'true'
