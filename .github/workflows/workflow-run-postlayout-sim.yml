@@ -174,17 +174,23 @@ jobs:
           echo "Committing PNGs to forked PR branch: $FORK_REPO $BRANCH_NAME"
 
           # Clone forked repo + checkout PR branch
+          echo "git clone"
           git clone --depth=1 --branch "$BRANCH_NAME" "https://x-access-token:${{ secrets.PAT }}@github.com/$FORK_REPO.git" fork-pr
+          echo "cd fork-pr"
           cd fork-pr
 
+          echo "git config"
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
           mkdir -p submissions
           cp ../output/*.png submissions/ || echo "No PNGs found"
 
+          echo "git add"
           git add submissions/*.png || true
+          echo "git commit"
           git commit -m "Add simulation result PNGs for PR #$PR_NUMBER" || echo "No changes"
+          echo "git push origin"
           git push origin "$BRANCH_NAME"
 
         env:
