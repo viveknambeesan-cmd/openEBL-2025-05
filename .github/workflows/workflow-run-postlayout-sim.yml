@@ -45,7 +45,8 @@ jobs:
           PR_NUMBER=$(echo "$PR_JSON" | jq -r '.[0].number')
           USERNAME=$(echo "$PR_JSON" | jq -r '.[0].author.login')
           FORK_OWNER=$(echo "$PR_JSON" | jq -r '.[0].headRepositoryOwner.login')
-          FORK_REPO="$FORK_OWNER/${{ github.repository }}"
+          REPO_NAME=$(basename "${{ github.repository }}")
+          FORK_REPO="$FORK_OWNER/$REPO_NAME"
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
           echo "username=$USERNAME" >> $GITHUB_OUTPUT
           echo "fork_repo=$FORK_REPO" >> $GITHUB_OUTPUT
