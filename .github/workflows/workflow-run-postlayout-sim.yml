@@ -140,7 +140,7 @@ jobs:
 
             echo "Formatting comment..."
             echo "This is an experimental feature. The goal is to run a circuit simulation on the design, and return the results for human verification." > comment.txt
-            echo "✅ Simulation results for \`$FILE_BASENAME\`" > comment.txt
+            echo "✅ Simulation results for \`$FILE_BASENAME\`" >> comment.txt
             echo "" >> comment.txt
 
             if [ -s sim_stdout.txt ]; then
@@ -199,6 +199,7 @@ jobs:
 
           git pull origin sim-images || true
 
+          git restore .  # unstage everything
           git add images/pr-${PR_NUMBER}
           git commit -m "Add simulation images for PR #$PR_NUMBER" || echo "No changes to commit"
           git push origin sim-images
