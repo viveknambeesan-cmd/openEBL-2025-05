@@ -27,7 +27,7 @@ jobs:
           git fetch origin main --no-tags --prune --unshallow
 
       - name: Install GitHub CLI
-        uses: cli/gh-action@v2
+        uses: cli/setup-gh@v2
 
       - name: Get PR number from branch
         id: getpr
