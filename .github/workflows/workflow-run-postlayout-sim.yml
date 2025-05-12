@@ -209,6 +209,25 @@ jobs:
           echo "_To re-run this simulation, comment **please resimulate** below._" >> comment.txt
 
 
+      - name: Delete previous simulation comment
+        if: steps.check_files.outputs.found == 'true'
+        run: |
+          PR_NUMBER="${{ steps.getpr.outputs.pr_number }}"
+
+          echo "Checking for previous simulation comment on PR #$PR_NUMBER"
+          COMMENTS=$(gh pr view "$PR_NUMBER" --comments --json comments -q '.comments[] | {id: .id, body: .body}' | jq -c '.')
+          
+          DELETE_COMMENT_ID=$(echo "$COMMENTS" | jq 'select(.body | contains("✅ Simulation results for")) | .id' | tail -n1)
+          
+          if [ -n "$DELETE_COMMENT_ID" ]; then
+            echo "Deleting previous comment with ID: $DELETE_COMMENT_ID"
+            gh api repos/${{ github.repository }}/issues/comments/$DELETE_COMMENT_ID -X DELETE
+          else
+            echo "No previous simulation comment found."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+  
           
       - name: Post simulation results as PR comment
         if: steps.check_files.outputs.found == 'true'
