@@ -6,26 +6,29 @@ on:
 
 jobs:
   run-postlayout-sim:
-    # Only run if the comment is on a pull request
     if: ${{ github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     permissions:
-      contents: read            # read repo contents (needed to fetch PR info)
-      issues: read              # read issue/pr comments
-      pull-requests: read       # read PR details
-      # (Note: For dispatching workflows, a PAT token with repo scope is used below)
+      contents: read
+      issues: read
+      pull-requests: read
+
     steps:
       - name: Extract PR branch name
         id: pr-branch
-        #if: ${{ github.event.comment.body == 'please resimulate' }}
-        if: |
-            contains(github.event.comment.body, 'please resimulate')
+        if: contains(github.event.comment.body, 'please resimulate')
         uses: xt0rted/pull-request-comment-branch@v3
-        # This action outputs the PR's head branch name as `head_ref`
+
+      - name: Debug outputs
+        if: contains(github.event.comment.body, 'please resimulate')
+        run: |
+          echo "Event repo: ${{ github.repository }}"
+          echo "PR number: ${{ github.event.issue.number }}"
+          echo "Branch ref (from xt0rted): ${{ steps.pr-branch.outputs.head_ref }}"
+          echo "Comment body: ${{ github.event.comment.body }}"
 
       - name: Dispatch simulation workflow
-        if: |
-          contains(github.event.comment.body, 'please resimulate')
+        if: contains(github.event.comment.body, 'please resimulate')
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: "workflow-run-postlayout-sim.yml"
