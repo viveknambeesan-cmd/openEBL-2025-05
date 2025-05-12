@@ -144,7 +144,11 @@ jobs:
             fi
 
             echo "Fetching new output files from Baker..."
-            rsync -avz --ignore-existing --update baker:simulations/$USERNAME/ ./output/
+            timeout 60s rsync -avz --ignore-existing --update baker:simulations/$USERNAME/ ./output/
+
+            if [ $RET_CODE -eq 124 ]; then
+              echo "❌ rsync command timed out."
+            fi
 
             if [ $RET_CODE -eq 0 ]; then
               echo "✅ Simulation results for \`$FILE_BASENAME\`" >> comment.txt
