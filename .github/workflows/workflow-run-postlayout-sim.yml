@@ -231,6 +231,7 @@ jobs:
             RET_CODE=$?
             if [ $RET_CODE -ne 0 ]; then
               echo "Error with gh command"
+            fi
           else
             echo "No previous simulation comment found."
           fi
