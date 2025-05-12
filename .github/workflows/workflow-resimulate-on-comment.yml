@@ -12,25 +12,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get PR data
-        id: pr_data
-        run: |
-          echo "PR number: ${{ github.event.issue.number }}"
-          PR_URL="${{ github.event.issue.pull_request.url }}"
-          echo "PR URL: $PR_URL"
-          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
-
-      - name: Get PR Head SHA
-        id: get_sha
+      - name: Get PR info
+        id: get_pr
         uses: octokit/request-action@v2.x
         with:
           route: GET /repos/${{ github.repository }}/pulls/${{ github.event.issue.number }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Trigger post-layout simulation manually
+      - name: Extract head ref
+        id: extract_ref
+        run: |
+          echo "ref=$(echo '${{ steps.get_pr.outputs.data }}' | jq -r '.head.ref')" >> $GITHUB_OUTPUT
+
+      - name: Trigger post-layout simulation
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: workflow-run-postlayout-sim.yml
-          ref: ${{ fromJson(steps.get_sha.outputs.data).head.ref }}
+          ref: ${{ steps.extract_ref.outputs.ref }}
           token: ${{ secrets.PAT }}
