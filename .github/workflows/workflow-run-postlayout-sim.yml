@@ -53,7 +53,7 @@ jobs:
           USERNAME="${{ steps.getpr.outputs.username }}"
           echo "Detected GitHub username: $USERNAME"
 
-          FILES=$(git diff --name-only origin/main...HEAD | grep -i -E '\.(gds|oas)$' | sed 's|^submissions/||'  || true)
+          FILES=$(git diff --diff-filter=AM --name-only origin/main...HEAD | grep -i -E '\.(gds|oas)$' | sed 's|^submissions/||'  || true)
 
           if [ -z "$FILES" ]; then
             echo "No .gds or .oas files in submissions/"
