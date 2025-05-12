@@ -1,0 +1,36 @@
+name: Resimulate Post-layout simulation verification
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  resimulate-if-requested:
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, 'please resimulate')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get PR data
+        id: pr_data
+        run: |
+          echo "PR number: ${{ github.event.issue.number }}"
+          PR_URL="${{ github.event.issue.pull_request.url }}"
+          echo "PR URL: $PR_URL"
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+
+      - name: Get PR Head SHA
+        id: get_sha
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.issue.number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger post-layout simulation manually
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: workflow-run-postlayout-sim.yml
+          ref: ${{ fromJson(steps.get_sha.outputs.data).head.ref }}
+          token: ${{ secrets.PAT }}

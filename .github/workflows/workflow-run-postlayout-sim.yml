@@ -9,6 +9,7 @@ on:
     workflows: ["Run Layout Verification"]
     types:
       - completed
+  workflow_dispatch:
 
 jobs:
   secure-sim:
@@ -204,6 +205,9 @@ jobs:
             FILENAME=$(basename "$img")
             echo "![${FILENAME}](https://github.com/${FORK_REPO}/blob/${BRANCH_NAME}/submissions/${FILENAME}?raw=true)" >> comment.txt
           done
+          echo "" >> comment.txt
+          echo "_To re-run this simulation, comment **please resimulate** below._" >> comment.txt
+
 
           
       - name: Post simulation results as PR comment
