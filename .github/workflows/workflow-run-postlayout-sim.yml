@@ -221,28 +221,28 @@ jobs:
           echo "_We have implemented automated computation of the ebeam_dc_halfring_straight s-parameters, for TE 1550. If the parameters chosen in the design were missing, a simulation job was submitted, and the CML on the server will be automatically updated, and available on for future circuit simulations. _" >> comment.txt
 
 
-      - name: Delete previous simulation comment
-        if: steps.check_files.outputs.found == 'true'
-        run: |
-          PR_NUMBER="${{ steps.getpr.outputs.pr_number }}"
+      # - name: Delete previous simulation comment
+      #   if: steps.check_files.outputs.found == 'true'
+      #   run: |
+      #     PR_NUMBER="${{ steps.getpr.outputs.pr_number }}"
 
-          echo "Checking for previous simulation comment on PR #$PR_NUMBER"
-          COMMENTS=$(gh pr view "$PR_NUMBER" --comments --json comments -q '.comments[] | {id: .id, body: .body}' | jq -c '.')
+      #     echo "Checking for previous simulation comment on PR #$PR_NUMBER"
+      #     COMMENTS=$(gh pr view "$PR_NUMBER" --comments --json comments -q '.comments[] | {id: .id, body: .body}' | jq -c '.')
 
-          DELETE_COMMENT_ID=$(echo "$COMMENTS" | jq -r 'select(.body | contains("✅ Simulation results for")) | .id' | tail -n1)
+      #     DELETE_COMMENT_ID=$(echo "$COMMENTS" | jq -r 'select(.body | contains("✅ Simulation results for")) | .id' | tail -n1)
 
-          if [ -n "$DELETE_COMMENT_ID" ]; then
-            echo "Deleting previous comment with ID: $DELETE_COMMENT_ID"
-            gh api repos/${{ github.repository }}/issues/comments/$DELETE_COMMENT_ID -X DELETE
-            RET_CODE=$?
-            if [ $RET_CODE -ne 0 ]; then
-              echo "Error with gh command"
-            fi
-          else
-            echo "No previous simulation comment found."
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.PAT }}
+      #     if [ -n "$DELETE_COMMENT_ID" ]; then
+      #       echo "Deleting previous comment with ID: $DELETE_COMMENT_ID"
+      #       gh api repos/${{ github.repository }}/issues/comments/$DELETE_COMMENT_ID -X DELETE
+      #       RET_CODE=$?
+      #       if [ $RET_CODE -ne 0 ]; then
+      #         echo "Error with gh command"
+      #       fi
+      #     else
+      #       echo "No previous simulation comment found."
+      #     fi
+      #   env:
+      #     GH_TOKEN: ${{ secrets.PAT }}
           
       - name: Post simulation results as PR comment
         if: steps.check_files.outputs.found == 'true'
