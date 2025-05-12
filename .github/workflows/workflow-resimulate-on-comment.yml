@@ -5,29 +5,29 @@ on:
     types: [created]
 
 jobs:
-  resimulate-if-requested:
-    if: |
-      github.event.issue.pull_request &&
-      contains(github.event.comment.body, 'please resimulate')
+  run-postlayout-sim:
+    # Only run if the comment is on a pull request
+    if: ${{ github.event.issue.pull_request }}
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read            # read repo contents (needed to fetch PR info)
+      issues: read              # read issue/pr comments
+      pull-requests: read       # read PR details
+      # (Note: For dispatching workflows, a PAT token with repo scope is used below)
     steps:
-      - name: Get PR info
-        id: get_pr
-        uses: octokit/request-action@v2.x
-        with:
-          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.issue.number }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract PR branch name
+        id: pr-branch
+        #if: ${{ github.event.comment.body == 'please resimulate' }}
+        if: |
+            contains(github.event.comment.body, 'please resimulate')
+        uses: xt0rted/pull-request-comment-branch@v3
+        # This action outputs the PR's head branch name as `head_ref`
 
-      - name: Extract head ref
-        id: extract_ref
-        run: |
-          echo "ref=$(echo '${{ steps.get_pr.outputs.data }}' | jq -r '.head.ref')" >> $GITHUB_OUTPUT
-
-      - name: Trigger post-layout simulation
+      - name: Dispatch simulation workflow
+        if: |
+          contains(github.event.comment.body, 'please resimulate')
         uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: workflow-run-postlayout-sim.yml
-          ref: ${{ steps.extract_ref.outputs.ref }}
+          workflow: "workflow-run-postlayout-sim.yml"
+          ref: ${{ steps.pr-branch.outputs.head_ref }}
           token: ${{ secrets.PAT }}
