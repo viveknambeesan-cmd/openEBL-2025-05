@@ -63,10 +63,13 @@ except:
    print('Error loading layout')
    num_errors = 1
 
+
 try:
    # get top cell from layout
    if len(layout.top_cells()) != 1:
       print('Error: layout does not have 1 top cell. It has %s.' % len(layout.top_cells()))
+      print(f' - cells: {[c.name for c in layout.each_cell()]}')
+      print(f' - file size: {os.path.getsize(gds_file)}')
       num_errors += 1
 
    top_cell = layout.top_cell()
