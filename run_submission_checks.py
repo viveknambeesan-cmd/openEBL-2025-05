@@ -53,6 +53,9 @@ print('Running submission checks for file %s' % gds_file)
 from SiEPIC.scripts import replace_cell, cells_containing_bb_layers    
 
 def check():
+   
+   print(f' files: {os.listdir(os.path.dirname(gds_file))}')
+   
    try:
       # load into layout
       layout = pya.Layout()
