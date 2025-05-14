@@ -136,7 +136,8 @@ jobs:
             
             echo "Starting simulation on Baker for $FILE_BASENAME"
 
-            timeout 120s ssh baker "cd simulations && python3 run_circuit_simulation.py $USERNAME/$FILE_BASENAME" \
+            # 5 min time limit
+            timeout 300s ssh baker "cd simulations && python3 run_circuit_simulation.py $USERNAME/$FILE_BASENAME" \
               > sim_stdout.txt 2> sim_stderr.txt
             RET_CODE=$?
 
