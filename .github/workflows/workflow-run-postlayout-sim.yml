@@ -228,7 +228,7 @@ jobs:
           # echo "_To re-run this simulation, comment **please resimulate** below._" >> comment.txt  # not working
           echo "_To re-run this simulation, please make a change to the layout file (simply running V verification will change the date stamp in the layout), save it, and upload it to your GitHub fork. This will trigger this simulation to run again._" >> comment.txt
           echo "" >> comment.txt
-          echo "_We have implemented automated computation of the ebeam_dc_halfring_straight s-parameters, for TE 1550. If the parameters chosen in the design were missing, a simulation job was submitted, and the CML on the server will be automatically updated, and available on for future circuit simulations. _" >> comment.txt
+          echo "_We have implemented automated computation of the ebeam-dc-halfring-straight s-parameters, for TE 1550. If the parameters chosen in the design were missing, a simulation job was submitted, and the CML on the server will be automatically updated, and available on for future circuit simulations. _" >> comment.txt
           echo "" >> comment.txt
           
 
@@ -269,7 +269,7 @@ jobs:
       - name: Update comment
         if: steps.fc.outputs.comment-id != ''
         run: |
-          dt=$(date '+%Y/%m/%d %H:%M:%S');
+          dt=$(TZ='America/Los_Angeles' date '+%Y-%m-%d %H:%M:%S %Z')
           echo " - Simulation updated: $dt " >> comment.txt
               
       - name: Post simulation results as PR comment
