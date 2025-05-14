@@ -167,13 +167,13 @@ jobs:
               echo "" >> comment.txt
             fi
 
-            if [ -s sim_stderr.txt ]; then
-              echo "**stderr:**" >> comment.txt
-              echo '```' >> comment.txt
-              cat sim_stderr.txt >> comment.txt
-              echo '```' >> comment.txt
-              echo "" >> comment.txt
-            fi
+            #if [ -s sim_stderr.txt ]; then
+            #  echo "**stderr:**" >> comment.txt
+            #  echo '```' >> comment.txt
+            #  cat sim_stderr.txt >> comment.txt
+            #  echo '```' >> comment.txt
+            #  echo "" >> comment.txt
+            #fi
 
           done
 
