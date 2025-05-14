@@ -134,8 +134,8 @@ jobs:
           FORK_BRANCH: ${{ github.event.pull_request.head.ref }}
           PAT: ${{ secrets.PAT }}
         run: |
-          git config user.name "git"
-          git config user.email "git@users.noreply.github.com"
+          git config user.name "lukasc-ubc"
+          git config user.email "lukasc-ubc@users.noreply.github.com"
       
           git add submissions/*.gds submissions/*.oas || true
           git commit -m "Auto-commit GDS/OAS output" || true
