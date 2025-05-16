@@ -52,6 +52,27 @@ print('Running submission checks for file %s' % gds_file)
 
 from SiEPIC.scripts import replace_cell, cells_containing_bb_layers    
 
+import xml.etree.ElementTree as ET
+
+def extract_sources_from_xml(file_path):
+    tree = ET.parse(file_path)
+    root = tree.getroot()
+
+    sources = []
+    for source in root.iter('source'):
+        text = source.text
+        if text:
+            parts = text.split('@')[0].split('/')
+            if len(parts) >= 2:
+                try:
+                    values = [int(parts[0]), int(parts[1])]
+                    sources.append(values)
+                except ValueError:
+                    continue  # Skip non-integer entries
+    return sources
+
+
+
 def check():
    
    
@@ -96,8 +117,6 @@ def check():
       # Initialize an empty bounding box
       combined_bbox = pya.Region()
       
-      # print(top_cell.layout().layer_indexes())
-
       # Loop through layers and merge bounding boxes
       for layer_num, layer_dt in layers_of_interest:
          layer_index = layout.find_layer(pya.LayerInfo(layer_num, layer_dt))
@@ -153,11 +172,20 @@ def check():
          print(' - Names of unreplaced BB cells: %s' % set(cells_bb))
          print('ERROR: unidentified black box cells. Please ensure that the design only uses cells contained in the PDK: https://github.com/SiEPIC/SiEPIC_EBeam_PDK. Also ensure that the cells have not been modified in any way (rotations, origin changes, resizing, renaming).')
       num_errors += len(cells_bb)
+      
 
    except:
       print('Runtime exception.')
       if num_errors == 0:
          num_errors = 1
+
+   layout.technology_name = 'EBeam'
+   pdk_layers = extract_sources_from_xml(layout.technology().eff_layer_properties_file())
+   for l in layout.layer_infos():
+      if [l.layer,l.datatype] not in pdk_layers:
+         print (f'Error: the layer {l} in the design is not defined in the PDK.')
+         num_errors += 1
+
 
    return num_errors
 
