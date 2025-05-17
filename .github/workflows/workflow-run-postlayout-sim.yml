@@ -27,7 +27,7 @@ jobs:
 
       - name: Fetch base branch
         run: |
-          git fetch origin main --no-tags --prune --unshallow
+          git fetch origin main --no-tags --prune
   
       - name: Debug Git info after checkout
         run: |
