@@ -1,6 +1,0 @@
-% X-coord, Y-coord, Polarization, wavelength, type, deviceID, params 
-52, 150, TE, 1550, SubhashArya, PIC, MZI, 370
-
-% X-coord, Y-coord, deviceID, padName, params 
-
-% X-coord, Y-coord, recipeID, params 

@@ -252,10 +252,10 @@ jobs:
           git config user.email "github-actions@github.com"
 
           mkdir -p submissions
-          cp ../output/*.png submissions/ || echo "No PNGs found"
+          cp ../output/*.png submissions/circuit_simulations/ || echo "No PNGs found"
 
           echo "git add"
-          git add submissions/*.png || true
+          git add submissions/circuit_simulations/*.png || true
           echo "git commit"
           git commit -m "Add simulation result PNGs for PR #$PR_NUMBER" || echo "No changes"
           echo "git push origin"
@@ -274,7 +274,7 @@ jobs:
           for img in output/*.png; do
             [ -f "$img" ] || continue
             FILENAME=$(basename "$img")
-            echo "![${FILENAME}](https://github.com/${FORK_REPO}/blob/${BRANCH_NAME}/submissions/${FILENAME}?raw=true)" >> comment.txt
+            echo "![${FILENAME}](https://github.com/${FORK_REPO}/blob/${BRANCH_NAME}/submissions/circuit_simulations/${FILENAME}?raw=true)" >> comment.txt
           done
           echo "" >> comment.txt
           # echo "_To re-run this simulation, comment **please resimulate** below._" >> comment.txt  # not working
