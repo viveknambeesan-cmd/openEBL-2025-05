@@ -28,6 +28,21 @@ jobs:
       - name: Fetch base branch
         run: |
           git fetch origin main --no-tags --prune
+  
+      - name: Debug Git info after checkout
+        run: |
+          echo "Checked out commit:"
+          git rev-parse HEAD
+          echo "Commit message:"
+          git log -1 --pretty=%B
+          echo "Changed files compared to main:"
+          git fetch origin main
+          git diff --name-only origin/main...HEAD > files_changed.txt
+          cat files_changed.txt
+            
+          echo "Commits in this range:"
+          git log --pretty=format:'%h %an <%ae>' origin/main..HEAD || true
+        
 
       - name: Get PR number, username, and fork repo
         id: getpr
@@ -39,66 +54,14 @@ jobs:
           FORK_OWNER=$(echo "$PR_JSON" | jq -r '.[0].headRepositoryOwner.login')
           REPO_NAME=$(basename "${{ github.repository }}")
           FORK_REPO="$FORK_OWNER/$REPO_NAME"
-          PR_BRANCH_NAME=$(echo "$PR_JSON" | jq -r '.[0].headRefName')  # Capture the branch name
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
           echo "username=$USERNAME" >> $GITHUB_OUTPUT
           echo "fork_repo=$FORK_REPO" >> $GITHUB_OUTPUT
-          echo "pr_branch_name=$PR_BRANCH_NAME" >> $GITHUB_OUTPUT   # Output the branch name
           echo "Found username: $USERNAME"
           echo "Found PR #: $PR_NUMBER"
           echo "Fork repo: $FORK_REPO"
         env:
           GH_TOKEN: ${{ secrets.PAT }}
-
-      - name: Debug Git info after checkout
-        run: |
-          PR_BRANCH_NAME="${{ steps.getpr.outputs.pr_branch_name }}"  # Retrieve the branch name
-          echo "Checked out commit:"
-          git rev-parse HEAD
-          echo "Commit message:"
-          git log -1 --pretty=%B
-          echo "Fetching main and PR branch..."
-          git fetch origin main
-          git fetch origin "$PR_BRANCH_NAME"  # Fetch the PR's branch
-          echo "Changed files compared to main:"
-          git diff origin/main origin/"$PR_BRANCH_NAME" --name-only > files_changed.txt # Correct diff
-          cat files_changed.txt
-          echo "Commits in this range:"
-          git log --pretty=format:'%h %an <%ae>' origin/main..HEAD || true
-                  
-      # - name: Debug Git info after checkout
-      #   run: |
-      #     echo "Checked out commit:"
-      #     git rev-parse HEAD
-      #     echo "Commit message:"
-      #     git log -1 --pretty=%B
-      #     echo "Changed files compared to main:"
-      #     git fetch origin main
-      #     git diff --name-only origin/main...HEAD > files_changed.txt
-      #     cat files_changed.txt
-            
-      #     echo "Commits in this range:"
-      #     git log --pretty=format:'%h %an <%ae>' origin/main..HEAD || true
-        
-
-      # - name: Get PR number, username, and fork repo
-      #   id: getpr
-      #   run: |
-      #     echo "Finding PR and username for branch: ${{ github.event.workflow_run.head_branch }}"
-      #     PR_JSON=$(gh pr list --state open --json number,author,headRepositoryOwner,headRefName -L 1 --search "head:${{ github.event.workflow_run.head_branch }}")
-      #     PR_NUMBER=$(echo "$PR_JSON" | jq -r '.[0].number')
-      #     USERNAME=$(echo "$PR_JSON" | jq -r '.[0].author.login')
-      #     FORK_OWNER=$(echo "$PR_JSON" | jq -r '.[0].headRepositoryOwner.login')
-      #     REPO_NAME=$(basename "${{ github.repository }}")
-      #     FORK_REPO="$FORK_OWNER/$REPO_NAME"
-      #     echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
-      #     echo "username=$USERNAME" >> $GITHUB_OUTPUT
-      #     echo "fork_repo=$FORK_REPO" >> $GITHUB_OUTPUT
-      #     echo "Found username: $USERNAME"
-      #     echo "Found PR #: $PR_NUMBER"
-      #     echo "Fork repo: $FORK_REPO"
-      #   env:
-      #     GH_TOKEN: ${{ secrets.PAT }}
 
       - name: Detect layout files
         id: check_files
@@ -106,14 +69,12 @@ jobs:
           USERNAME="${{ steps.getpr.outputs.username }}"
           echo "Detected GitHub username: $USERNAME"
 
-          FILES=$(git diff origin/main origin/"$PR_BRANCH_NAME" --diff-filter=AM --name-only | grep -i -E '\.(gds|oas)$' | sed 's|^submissions/||'  || true)
-          # FILES=$(git diff --diff-filter=AM --name-only origin/main...HEAD | grep -i -E '\.(gds|oas)$' | sed 's|^submissions/||'  || true)
+          FILES=$(git diff --diff-filter=AM --name-only origin/main...HEAD | grep -i -E '\.(gds|oas)$' | sed 's|^submissions/||'  || true)
 
           if [ -z "$FILES" ]; then
             echo "No .gds or .oas files in submissions/"
             echo "found=false" >> $GITHUB_OUTPUT
-            FILES_ALL=$(git diff origin/main origin/"$PR_BRANCH_NAME" --diff-filter=AM --name-only  || true)
-            #FILES_ALL=$(git diff --diff-filter=AM --name-only origin/main...HEAD  || true)
+            FILES_ALL=$(git diff --diff-filter=AM --name-only origin/main...HEAD  || true)
             if [ -z "$FILES_ALL" ]; then
               echo "No files in pull request"
             else
