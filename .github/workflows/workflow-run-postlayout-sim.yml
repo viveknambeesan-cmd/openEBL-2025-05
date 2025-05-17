@@ -23,10 +23,26 @@ jobs:
         with:
           repository: ${{ github.repository }}
           ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
 
-      - name: Fetch base branch
+      - name: Debug Git info after checkout
         run: |
-          git fetch origin main --no-tags --prune --unshallow
+          echo "Checked out commit:"
+          git rev-parse HEAD
+          echo "Commit message:"
+          git log -1 --pretty=%B
+          echo "Changed files compared to main:"
+          git fetch origin main
+          git diff --name-only origin/main...HEAD > files_changed.txt
+          cat files_changed.txt
+            
+          echo "Commits in this range:"
+          git log --pretty=format:'%h %an <%ae>' origin/main..HEAD || true
+        
+
+#      - name: Fetch base branch
+#        run: |
+#          git fetch origin main --no-tags --prune --unshallow
 
 
       - name: Get PR number, username, and fork repo
