@@ -107,24 +107,6 @@ jobs:
           echo "PR fork repo: ${{ github.event.pull_request.head.repo.full_name }}"
           echo "PR fork branch: ${{ github.event.pull_request.head.ref }}"
 
-          
-      - name: commit outputted oas and gds files into repository
-        run: |
-          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
-          git config --local user.name "${{ github.actor }}"
-          git pull
-
-          # git add all produced oas/gds files
-          for file in $OUTPUT_FILES; do
-            git add "submissions/$file"
-            echo "done: git add $file"
-          done
-
-          git commit -m "Add oas and gds files produced from .py files" 
-          echo "done: git commit"
-          git push
-          echo "done: git push"
-        if: github.event_name != 'pull_request'
 
 
       - name: Check if Actions are enabled on fork
@@ -143,9 +125,44 @@ jobs:
           if [ "$ENABLED" != "true" ]; then
             echo "Fork has Actions disabled."
             echo "enabled=false" >> $GITHUB_OUTPUT
-            echo "❌ GitHub Actions are disabled on your fork. Please enable them by going to the 'Actions' tab in your repository and clicking 'Enable workflows'."
-            exit 1
+            echo "❌ GitHub Actions are disabled on your fork."
+            echo "To enable:"
+            echo "  1. Visit https://github.com/$FORK_REPO/actions"
+            echo "  2. Click the 'Enable workflows' button at the top."
+            # exit 1
           else
             echo "enabled=true" >> $GITHUB_OUTPUT
           fi
-              
+
+      - name: Debug GitHub context
+        run: |
+          echo "Repository: ${{ github.repository }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Fork PR: ${{ github.event.pull_request.head.repo.full_name }}"
+          
+      # - name: Comment PR
+      #   uses: thollander/actions-comment-pull-request@v2
+      #   with:
+      #     message: |
+      #       Thank you for your pull request! :wave:
+      #     comment_tag: welcome-message
+  
+          
+      - name: commit outputted oas and gds files into repository
+        run: |
+          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --local user.name "${{ github.actor }}"
+          git pull
+
+          # git add all produced oas/gds files
+          for file in $OUTPUT_FILES; do
+            git add "submissions/$file"
+            echo "done: git add $file"
+          done
+
+          git commit -m "Add oas and gds files produced from .py files" 
+          echo "done: git commit"
+          git push
+          echo "done: git push"
+        #if: github.event_name != 'pull_request'
+            
