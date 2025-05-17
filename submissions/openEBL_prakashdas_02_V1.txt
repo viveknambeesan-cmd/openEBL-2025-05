@@ -1,8 +1,0 @@
-% X-coord, Y-coord, Polarization, wavelength, type, deviceID, params 
-361, 266, TE, 1550, Bragg, gratting, v1
-252, 266, TE, 1550, MZI, v1, comment
-41, 268, TE, 1550, Demux, v1, comment
-
-% X-coord, Y-coord, deviceID, padName, params 
-
-% X-coord, Y-coord, recipeID, params 
