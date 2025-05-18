@@ -154,36 +154,39 @@ def dbl_bus_ring_res(
 # Run all permutations:
 # All radii within one layout
 # one gap per layout
-sweep_radius = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+sweep_radius = [[12, 15, 20, 25, 30, 40], [2, 3, 4, 5, 6, 7, 8, 9, 10]]
+sweep_radius_desc = ['large','small']
 sweep_gap    = [0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.14, 0.16, 0.18, 0.20, 0.22, 0.24, 0.26, 0.28, 0.30]
 
-for g in sweep_gap:
-    ly, cell = dbl_bus_ring_res(sweep_radius = sweep_radius, 
-                                sweep_gap = len(sweep_radius)*[g])
+for r, desc in zip(sweep_radius, sweep_radius_desc):
+    print(r,desc)
+    for g in sweep_gap:
+        ly, cell = dbl_bus_ring_res(sweep_radius = r, 
+                                    sweep_gap = len(r)*[g])
 
 
-    # Export for fabrication, removing PCells
-    path = os.path.dirname(os.path.realpath(__file__))
-    filename, extension = os.path.splitext(os.path.basename(__file__))
-    filename += f'_g={int(g*1000)}'
-    if export_type == 'static':
-        file_out = export_layout(cell, path, filename, relative_path = '..', format='oas', screenshot=True)
-    else:
-        file_out = os.path.join(path,'..',filename+'.oas')
-        ly.write(file_out)
+        # Export for fabrication, removing PCells
+        path = os.path.dirname(os.path.realpath(__file__))
+        filename, extension = os.path.splitext(os.path.basename(__file__))
+        filename += f'_g={int(g*1000)}_{desc}'
+        if export_type == 'static':
+            file_out = export_layout(cell, path, filename, relative_path = '..', format='oas', screenshot=True)
+        else:
+            file_out = os.path.join(path,'..',filename+'.oas')
+            ly.write(file_out)
 
-#    file = os.path.join(path,'..',filename)
+    #    file = os.path.join(path,'..',filename)
 
-    '''
-    from SiEPIC.verification import layout_check
-    print('SiEPIC_EBeam_PDK: example_Ring_resonator_sweep.py - verification')
-    file_lyrdb = os.path.join(path,filename+'.lyrdb')
-    num_errors = layout_check(cell = cell, verbose=False, GUI=True, file_rdb=file_lyrdb)
-    '''
+        '''
+        from SiEPIC.verification import layout_check
+        print('SiEPIC_EBeam_PDK: example_Ring_resonator_sweep.py - verification')
+        file_lyrdb = os.path.join(path,filename+'.lyrdb')
+        num_errors = layout_check(cell = cell, verbose=False, GUI=True, file_rdb=file_lyrdb)
+        '''
 
-    # Display the layout in KLayout, using KLayout Package "klive", which needs to be installed in the KLayout Application
-    if Python_Env == 'Script':
-        from SiEPIC.utils import klive
-        klive.show(file_out, technology=tech_name)
+        # Display the layout in KLayout, using KLayout Package "klive", which needs to be installed in the KLayout Application
+        if Python_Env == 'Script':
+            from SiEPIC.utils import klive
+            klive.show(file_out, technology=tech_name)
 
-    print('layout script done')
+        print('layout script done')
