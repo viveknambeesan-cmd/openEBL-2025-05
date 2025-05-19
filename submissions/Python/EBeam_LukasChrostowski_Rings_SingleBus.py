@@ -108,7 +108,6 @@ def single_bus_ring_res(
             x = max(inst_wg1.bbox().right*dbu + gc_length + 1, instGCs[0].trans.disp.x*dbu + 60)
             
             if (x + (x-old_x)) > top_cell.bbox().right*dbu:
-                print(x,old_x, cell.bbox().right*dbu, top_cell.bbox().right*dbu)
                 x=0
                 y_row = 2*GC_pitch/dbu
                 # print('second row')
@@ -160,17 +159,14 @@ def single_bus_ring_res(
 # Run all permutations:
 # All radii within one layout
 # one gap per layout
-sweep_radius = [[12, 15, 20, 25, 30, 40], [2, 3, 4, 5, 6, 7, 8, 9, 10]]
-sweep_radius_desc = ['large','small']
-sweep_gap    = [0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.14, 0.16, 0.18, 0.20, 0.22, 0.24, 0.26, 0.28, 0.30]
+
+sweep_gap    = [0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.14, 0.16, 0.18, 0.20, 0.22, 0.24, 0.26, 0.28, 0.30, 0.35, 0.40]
 
 sweep_radius = [[2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30, 35, 40, 45, 49]]
 sweep_radius_desc = ['r2to49']
-sweep_gap    = [0.07, 0.08]
 
 
 for r, desc in zip(sweep_radius, sweep_radius_desc):
-    print(r,desc)
     for g in sweep_gap:
         ly, cell = single_bus_ring_res(sweep_radius = r, 
                                     sweep_gap = len(r)*[g])
