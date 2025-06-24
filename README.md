@@ -76,7 +76,7 @@ The verification and merging is performed using GitHub actions. The repository i
 3) Performing Functional verification on the designs in the "submissions" folder, and outputing the errors as an Artifact
 4) Merging the designs from the "submissions" folder, and outputing merged layout as an Artifact in the main repository
 
-## Latest Merge Layout File
+## Merged Layout File
 
 <img alt="Merged Layout" src="./merge/EBeam.png">
 
@@ -84,3 +84,7 @@ Click on the following link to download the EBeam.oas merged layout file:
 <!-- start-link -->
 https://github.com/SiEPIC/openEBL-2025-05/actions/runs/15107025690/artifacts/3149512031
 <!-- end-link -->
+
+## Measurement data
+https://qdot-nexus.phas.ubc.ca:25683/s/tBoG5bK5aPs3yTY
+
