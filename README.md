@@ -76,11 +76,39 @@ The verification and merging is performed using GitHub actions. The repository i
 3) Performing Functional verification on the designs in the "submissions" folder, and outputing the errors as an Artifact
 4) Merging the designs from the "submissions" folder, and outputing merged layout as an Artifact in the main repository
 
-## Latest Merge Layout File
+## Merged Layout File
 
 <img alt="Merged Layout" src="./merge/EBeam.png">
 
 Click on the following link to download the EBeam.oas merged layout file:
 <!-- start-link -->
-https://github.com/SiEPIC/openEBL-2025-05/actions/runs/14939535459/artifacts/3097590239
+https://github.com/SiEPIC/openEBL-2025-05/actions/runs/15107025690/artifacts/3149512031
 <!-- end-link -->
+
+## Measurement data
+https://qdot-nexus.phas.ubc.ca:25683/s/tBoG5bK5aPs3yTY
+
+## SEM images of the fabricated designs
+
+Scanning electron microscope images of some of the devices from this fabrication run were taken, and are available in the "SEMs" folder, and shown here:
+
+
+![SEM image – 1x2 splitter](./SEMs/UL_011.jpg)
+
+![SEM image – 2x2 splitter](./SEMs/UL_012.jpg)
+
+![SEM image – 3x3 splitter](./SEMs/UL_007.jpg)
+
+![SEM image – subwavelength grating waveguides](./SEMs/UL_023.jpg)
+
+![SEM image – Bragg grating](./SEMs/UL_039.jpg)
+
+![SEM image – Bragg grating contra directional coupler](./SEMs/UL_034.jpg)
+
+
+![SEM image – lithgraphy test structure](./SEMs/UL_026.jpg)
+
+![SEM image – lithgraphy test structure](./SEMs/UL_027.jpg)
+
+
+
