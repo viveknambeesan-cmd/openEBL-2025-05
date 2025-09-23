@@ -81,9 +81,6 @@ The verification and merging is performed using GitHub actions. The repository i
 <img alt="Merged Layout" src="./merge/EBeam.png">
 
 Click on the following link to download the EBeam.oas merged layout file:
-<!-- start-link -->
-https://github.com/SiEPIC/openEBL-2025-05/actions/runs/15107025690/artifacts/3149512031
-<!-- end-link -->
 
 ## Measurement data
 https://qdot-nexus.phas.ubc.ca:25683/s/tBoG5bK5aPs3yTY
@@ -112,3 +109,6 @@ Scanning electron microscope images of some of the devices from this fabrication
 
 
 
+<!-- start-link -->
+https://github.com/SiEPIC/openEBL-2025-05/actions/runs/17939021351/artifacts/4080047146
+<!-- end-link -->
